@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: postgres
-    password: 123
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/postgres}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:123}
 
   jpa:
     hibernate:
@@ -30,4 +30,5 @@ app:
 
 logging:
   level:
-    root: INFO
+    root: DEBUG
+    com.bank.bankrest: DEBUG
