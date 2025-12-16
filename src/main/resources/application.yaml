@@ -1,0 +1,33 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: 123
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  liquibase:
+    change-log: classpath:db/migration/db.changelog-master.yaml
+    enabled: true
+
+server:
+  port: 8080
+
+jwt:
+  secret: verySecretKey123456
+  expiration-ms: 3600000
+
+
+app:
+  card:
+    mask: "**** **** **** %s"
+
+logging:
+  level:
+    root: INFO
