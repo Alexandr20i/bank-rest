@@ -29,6 +29,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getPassword() {
+        System.out.println("PASSWORD FROM DB = " + user.getPassword());
         return user.getPassword();
     }
 
@@ -36,6 +37,7 @@ public class CustomUserDetails implements UserDetails {
     public String getUsername() {
         return user.getUsername();
     }
+
 
     // ниже — стандартные флаги, оставляем true
     @Override public boolean isAccountNonExpired() { return true; }

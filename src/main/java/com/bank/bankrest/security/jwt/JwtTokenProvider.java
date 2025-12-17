@@ -1,10 +1,14 @@
 package com.bank.bankrest.security.jwt;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Component
@@ -13,26 +17,40 @@ public class JwtTokenProvider {
     @Value("${jwt.secret}")
     private String secret;
 
-    @Value("${jwt.expiration-ms}")
-    private long expirationMs;
+    @Value("${jwt.expiration}")
+    private long expiration;
+
+    private SecretKey key;
+
+    @PostConstruct
+    public void init() {
+        // Проверяем длину ключа
+        byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
+        if (keyBytes.length < 32) {
+            // Если слишком короткий, генерируем безопасный ключ автоматически
+            key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+            System.out.println("WARNING: JWT secret too short, generated new secure key!");
+        } else {
+            key = Keys.hmacShaKeyFor(keyBytes);
+        }
+    }
 
     public String generateToken(Authentication authentication) {
-        String username = authentication.getName();
-
         Date now = new Date();
-        Date expiry = new Date(now.getTime() + expirationMs);
+        Date expiryDate = new Date(now.getTime() + expiration);
 
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(authentication.getName())
                 .setIssuedAt(now)
-                .setExpiration(expiry)
-                .signWith(SignatureAlgorithm.HS256, secret)
+                .setExpiration(expiryDate)
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
     public String getUsernameFromToken(String token) {
-        return Jwts.parser()
-                .setSigningKey(secret)
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
@@ -40,9 +58,12 @@ public class JwtTokenProvider {
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
+            Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token);
             return true;
-        } catch (JwtException | IllegalArgumentException ex) {
+        } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
     }

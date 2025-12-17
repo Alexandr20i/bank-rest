@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/postgres}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgresql:5432/postgres}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
     password: ${SPRING_DATASOURCE_PASSWORD:123}
 
@@ -20,8 +20,8 @@ server:
   port: 8080
 
 jwt:
-  secret: verySecretKey123456
-  expiration-ms: 3600000
+  secret: "my-super-secret-key-my-super-secret-key-123456"
+  expiration: 3600000
 
 
 app:
@@ -30,5 +30,13 @@ app:
 
 logging:
   level:
-    root: DEBUG
+#    root: DEBUG
+    org.springframework.security: DEBUG
     com.bank.bankrest: DEBUG
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    disable-swagger-default-url: true
